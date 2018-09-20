@@ -11,5 +11,7 @@ export default {
   warningText: '#666804',
   noticeBackground: tintColor,
   noticeText: '#fff',
-  navigationTitle: '#1E88E5',
+  navigationTitle: 'rgb(103, 176, 214)',
+  bottomButton: '#8bc34a',
+  userTools: 'rgb(56, 71, 79)',
 };

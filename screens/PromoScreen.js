@@ -3,15 +3,15 @@ import {
 	View, 
 	Text, 
 	Image, 
-	ScrollView,
 	StyleSheet, 
 	Dimensions, 
 	TouchableOpacity,
 	WebView,
 	Linking,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Icon } from 'expo';
-import Comment from '../components/Comment';
+import Review from '../components/Review';
 import HTML from 'react-native-render-html';
 
 export default class PromoScreen extends React.Component {
@@ -29,6 +29,7 @@ export default class PromoScreen extends React.Component {
         title: navigation.state.params.title,
 	});
 	
+	// open site in browser
 	handleClick = (site) => {
 		Linking.canOpenURL(site).then(supported => {
 		  if (supported) {
@@ -54,7 +55,7 @@ export default class PromoScreen extends React.Component {
         })*/
 
        	this.setState({
-          promo: require('../components/promo1.json'),
+          promo: require('../components/Promo.json'),
           isLoad: true,
 		})
 		
@@ -141,7 +142,7 @@ export default class PromoScreen extends React.Component {
 							<WebView source={{uri:'http://promocodehealth.ru/public/onemap/'+promo.coordinates+'/'+promo.title}} style={styles.map} />
 							<Text style={styles.address}>{promo.address}</Text>
 						</TouchableOpacity>
-						<TouchableOpacity>
+						<TouchableOpacity onPress={()=>{this.props.navigation.navigate('ReviewList', {id: promo.id})}}>
 							<View style={[styles.horizontal, styles.allrow]}>
 								<Text style={styles.title}>Отзывы <Text style={styles.countReview}>{promo.rev_quantity}</Text></Text>
 								<Text style={styles.link}>Все отзывы</Text>
@@ -149,7 +150,7 @@ export default class PromoScreen extends React.Component {
 							{ (promo.rev_quantity > 0) &&
 								promo.reviews.map((review, index)=>{ 
 									return(
-										<Comment key={index} data={review} />
+										<Review key={index} data={review} />
 									)
 								})
 							}

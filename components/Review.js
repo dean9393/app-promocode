@@ -7,7 +7,7 @@ import {
 import {Avatar} from 'react-native-elements';
 import { Icon } from 'expo';
 
-export default class Comment extends React.Component
+export default class Review extends React.Component
 {
     constructor(props)
     {

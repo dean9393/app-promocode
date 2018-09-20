@@ -10,6 +10,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import PromoScreen from '../screens/PromoScreen';
 import InfoScreen from '../screens/InfoScreen';
 import InfoMapScreen from '../screens/InfoMapScreen';
+import ReviewScreen from '../screens/ReviewScreen';
 
 const HomeStack = createStackNavigator({
   Home: {
@@ -20,6 +21,9 @@ const HomeStack = createStackNavigator({
         backgroundColor: Colors.navigationTitle,
       },
       headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      }
     }
   },
   Promo: {
@@ -29,6 +33,9 @@ const HomeStack = createStackNavigator({
         backgroundColor: Colors.navigationTitle,
       },
       headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
       tabBarOptions: {
         showLabel: false,
       },
@@ -41,6 +48,9 @@ const HomeStack = createStackNavigator({
         backgroundColor: Colors.navigationTitle,
       },
       headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
       tabBarOptions: {
         showLabel: false,
       },
@@ -54,14 +64,31 @@ const HomeStack = createStackNavigator({
         backgroundColor: Colors.navigationTitle,
       },
       headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
+    }
+  },
+  ReviewList: {
+    screen: ReviewScreen,
+    navigationOptions: {
+      title: 'Отзывы',
+      headerStyle: {
+        backgroundColor: Colors.navigationTitle,
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
     }
   }
 });
 
 HomeStack.navigationOptions = {
   tabBarLabel: 'Home',
-  tabBarIcon: () => (
+  tabBarIcon: ({ focused }) => (
     <TabBarIcon
+      focused={focused}
       name={ Platform.OS === 'ios'  ? 'ios-pricetags' : 'tags' }
 	    font={ Platform.OS === 'ios' ? 'Ionicons' : 'FontAwesome' }
     />
@@ -72,13 +99,27 @@ HomeStack.navigationOptions = {
 };
 
 const MapStack = createStackNavigator({
-	Map: MapScreen,
+  Map: MapScreen,
+  Map: {
+    screen: MapScreen,
+    navigationOptions: {
+      title: 'Карта',
+      headerStyle: {
+        backgroundColor: Colors.navigationTitle,
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
+    }
+  }
 });
 
 MapStack.navigationOptions = {
 	tabBarLabel: 'Map',
-	tabBarIcon: () => (
+	tabBarIcon: ({ focused }) => (
 		<TabBarIcon
+      focused={focused}
 		  name={Platform.OS === 'ios' ? `ios-map` : 'map-o'}
 		  font={Platform.OS === 'ios'	? 'Ionicons' : 'FontAwesome'}
 		/>

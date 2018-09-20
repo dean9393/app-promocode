@@ -1,8 +1,7 @@
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage } from 'react-native';
-import { AppLoading, Asset, Font, Icon } from 'expo';
+import { AppLoading, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
-import DropNetwork from './components/DropNetwork';
 
 export default class App extends React.Component {
   state = {
@@ -19,7 +18,6 @@ export default class App extends React.Component {
           onError={this._handleLoadingError}
           onFinish={this._handleFinishLoading}
         />
-        <DropNetwork />
         </View>
         
       );
@@ -27,7 +25,6 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <DropNetwork />
           <AppNavigator />
         </View>
       );
@@ -36,16 +33,13 @@ export default class App extends React.Component {
 
   _loadResourcesAsync = async () => {
     return Promise.all([
-      Asset.loadAsync([
-        require('./assets/images/robot-dev.png'),
-        require('./assets/images/robot-prod.png'),
-      ]),
       Font.loadAsync({
         // This is the font that we are using for our tab bar
         ...Icon.Ionicons.font,
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
-        'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+        'roboto': require('./assets/fonts/Roboto-Medium.ttf'),
+        'roboto-italic': require('./assets/fonts/Roboto-MediumItalic.ttf'),
       }),
       /*fetch('http://promocodehealth.ru/public/api/categories/')
       .then((response) => response.json())
@@ -80,7 +74,7 @@ export default class App extends React.Component {
     console.warn(error);
   };
 
-  _handleFinishLoading = () => { console.log(this.state.categories);
+  _handleFinishLoading = () => {
     this.setState({ isLoadingComplete: true });
   };
 }
@@ -88,6 +82,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#E9E9E9',
   },
 });

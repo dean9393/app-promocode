@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Image, Dimensions, StyleSheet, Text, TouchableOpacity, } from 'react-native';
 import TabBarIcon from '../components/TabBarIcon';
 import { withNavigation } from 'react-navigation';
+import { BoxShadow } from 'react-native-shadow';
+import  Slider  from '../components/Slider';
 
 class Promo extends React.Component
 {
@@ -14,24 +16,46 @@ class Promo extends React.Component
     {
         const promo = this.props.data;
 
+        const shadowOpt = {
+			width:55,
+			height:40,
+			color:"#000",
+			border:0,
+			radius:8,
+			opacity:0.2,
+			x:1,
+			y:2,
+			style:{marginVertical:1}
+        }
+        
+        const imgs = [];
+        let url = 'http://promocodehealth.ru/public/storage/';
+
+        (promo.img1) ? imgs.push(url + promo.img1) : '';
+        (promo.img2) ? imgs.push(url + promo.img2) : '';
+        (promo.img3) ? imgs.push(url + promo.img3) : '';
+
         return(
-            <View key={ promo.id } style={styles.container}>
-            <TouchableOpacity onPress={() => {this.props.navigation.navigate('Promo', {id:promo.id, title:promo.title})} } >
+            <View style={ styles.container }>
+            <TouchableOpacity onPress={ () => {this.props.navigation.navigate('Promo', {id:promo.id, title:promo.title})} }>
                 <View>
-                    <View style={styles.horizontalBlock} >
-                        <Text style={[styles.whiteBlock, styles.white]}>- { promo.sale }%</Text>
-                        <View style={[styles.horizontal, styles.whiteBlock]}>
-                            <Text  style={styles.white} >{ promo.tickets - promo.rec_promo } </Text>
-                            <TabBarIcon custom={true} style={{ marginLeft: 5, marginBottom: 0, }} name={'tags'} font={'FontAwesome'} size={25} />
-                        </View>
+                    <View style={ styles.saleBlock } >
+                        <BoxShadow setting={ shadowOpt }>
+                            <Text style={ styles.sale }>- { promo.sale }%</Text>
+                        </BoxShadow>
                     </View>
-                    <Image style={styles.image} source={{ uri: 'http://promocodehealth.ru/public/storage/' + promo.img }} />
-                    <Text style={styles.date_block}>Осталось { this._getDate(promo.date_end) }</Text>
+                    <Slider 
+                    images={ imgs } 
+                    r={ 5 }
+                    w={ Dimensions.get('window').width - 40 }
+                    h={ (Dimensions.get('window').width - 40) / 1.766 } />
                 </View>
-                <Text style={styles.title}>{ promo.title }</Text>
-                <View style={[styles.horizontal, styles.right_align]}>
-                    <Text style={styles.old_price}>{ promo.price }₽</Text>
-                    <Text>{ promo.price * ((100 - promo.sale) / 100) }₽</Text>
+                <Text style={ styles.title }>{ promo.title }</Text>
+                <View style={ styles.horizontal }>
+                    <Text style={ styles.italic}>{ this._getDate(promo.date_end) } </Text>
+                    <Text style={ styles.italic}>{ promo.tickets - promo.rec_promo }</Text>
+                    <TabBarIcon custom={ true } style={{ marginLeft: 1, marginBottom: 0, }} name={'tags'} font={'FontAwesome'} size={15} />
+                    <Text style={ styles.italic}>  { promo.price * ((100 - promo.sale) / 100) }₽</Text>
                 </View>
             </TouchableOpacity>
             </View>
@@ -48,15 +72,7 @@ class Promo extends React.Component
         var hours = parseInt((duration/(1000*60*60))%24);
         var days = parseInt(duration/(1000*60*60*24));
 
-        var day = days % 10;
-        var day_str = (day == 1) ? 'день' : (day > 1 && day < 5) ? 'дня' : 'дней';
-
-        var hour_str = (hours == 1 || hours == 21) ? 'час' : ((hours > 1 && hours < 5) || hours > 21 ) ? 'часа' : 'часов';
-
-        var min = minutes % 10;
-        var min_str = (minutes > 10 && minutes < 15) ? 'минут' : (min == 1) ? 'минута' : (min > 1 && min < 5) ? 'минуты' : 'минут';
-
-        str = days +' ' + day_str + ' ' + hours + ' ' + hour_str + ' ' + minutes + ' ' + min_str;
+        str = days +'д. ' + hours + 'ч. ' + minutes + 'м.';
         return str;
     }
 }
@@ -65,63 +81,50 @@ export default withNavigation(Promo)
 
 const styles = StyleSheet.create({
     image: {
-        width: Dimensions.get('window').width - 10,
-        minHeight: (Dimensions.get('window').width - 10) / 1.766,
-        marginTop: -60,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
     },
-    horizontalBlock: {
+    saleBlock: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 5,
+        paddingTop: 30,
         zIndex: 10,
-        backgroundColor: 'rgba(255,255,255,0.6)',
+        position: 'absolute',
+        left: 0,
+        top: 0,
     },
     horizontal: {
         flexDirection: 'row',
+        justifyContent: 'center',
     },
-    whiteBlock: {
-        backgroundColor: '#ffffff',
-        borderRadius: 50,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingTop: 5,
-        paddingBottom: 5,
-    },
-    white: {
-        color: '#000',
-        fontSize: 18,
-    },
-    padleft: {
-        marginLeft: 5,
+    sale: {
+        backgroundColor: 'rgb(246,132,106)',
+        color: '#fff',
+        borderTopRightRadius: 3,
+        borderBottomRightRadius: 3,
+        padding: 10,
+        fontFamily: 'roboto',
+        minWidth: 50,
+        textAlign: 'center',
     },
     title: {
-        margin: 5,
+        margin: 20,
+        fontSize: 16,
+        fontFamily: 'roboto',
+        textAlign: 'justify',
     },
     container: {
-        marginLeft: 5,
-        marginRight: 5,
         marginTop: 10,
+        marginBottom: 10,
         backgroundColor: '#fff',
-        shadowColor: '#000000',
-        shadowOffset: {
-            width: 4,
-            height: 4
-        },
-        shadowRadius: 5,
+        position: 'relative',
+        paddingBottom: 20,
+        borderRadius: 5,
     },
-    old_price: {
-        textDecorationLine: 'line-through',
-        color: '#c0c0c0',
-        paddingRight: 10,
+    italic: {
+        fontFamily: 'roboto-italic',
+        fontSize: 12,
+        color: '#777777',
+        textAlign: 'center',
     },
-    right_align: {
-        justifyContent: 'flex-end',
-        marginRight: 5,
-    },
-    date_block: {
-        backgroundColor: 'rgba(255,255,255,0.6)',
-        marginTop: -27,
-        padding: 5,
-        zIndex: 10,
-    }
 })
