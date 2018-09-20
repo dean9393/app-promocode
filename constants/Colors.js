@@ -12,6 +12,6 @@ export default {
   noticeBackground: tintColor,
   noticeText: '#fff',
   navigationTitle: 'rgb(103, 176, 214)',
-  bottomButton: '#8bc34a',
+  bottomButton: '#FF8569',
   userTools: 'rgb(56, 71, 79)',
 };

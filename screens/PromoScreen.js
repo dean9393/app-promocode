@@ -13,6 +13,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Icon } from 'expo';
 import Review from '../components/Review';
 import HTML from 'react-native-render-html';
+import Slider from '../components/Slider';
+
 
 export default class PromoScreen extends React.Component {
 
@@ -21,7 +23,6 @@ export default class PromoScreen extends React.Component {
     	super(props);
     	this.state={
 			isLoad: false,
-			modalVisible: false,
     	}
 	}
 
@@ -65,11 +66,27 @@ export default class PromoScreen extends React.Component {
     {
 		const promo = this.state.promo;
 
+		const imgs = [];
+        let url = 'http://promocodehealth.ru/public/storage/';
+
+		if( this.state.isLoad ) {
+        	(promo.img1) ? imgs.push(url + promo.img1) : '';
+        	(promo.img2) ? imgs.push(url + promo.img2) : '';
+			(promo.img3) ? imgs.push(url + promo.img3) : '';
+		}
+
         return(
             <View style={styles.body}>
 				{ this.state.isLoad && 
-				<ScrollView style={styles.scrollview}>
-					<Image style={styles.image} source={{ uri: 'http://promocodehealth.ru/public/storage/' + promo.img }} />
+				<ScrollView>
+					<Slider 
+                    images={ imgs }
+                    // radius
+                    r={ 0 }
+                    // widrh
+                    w={ Dimensions.get('window').width }
+                    // height
+                    h={ Dimensions.get('window').width  / 1.766 } />
 					<View style={styles.container}>
 						<Text style={styles.title}>{promo.title}</Text>
 						<View style={[styles.horizontal, styles.allrow, styles.block, styles.mTop]}>
@@ -139,7 +156,7 @@ export default class PromoScreen extends React.Component {
 								<Text style={styles.title}>На карте</Text>
 								<Text style={styles.link}>Открыть</Text>
 							</View>
-							<WebView source={{uri:'http://promocodehealth.ru/public/onemap/'+promo.coordinates+'/'+promo.title}} style={styles.map} />
+							<WebView source={{uri:'http://promocodehealth.ru/public/onemap/'+promo.coordinates+'/'+promo.title + '/15'}} style={styles.map} />
 							<Text style={styles.address}>{promo.address}</Text>
 						</TouchableOpacity>
 						<TouchableOpacity onPress={()=>{this.props.navigation.navigate('ReviewList', {id: promo.id})}}>
@@ -207,10 +224,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fff',
 	},
-	scrollview: {
-		paddingLeft: 5,
-		paddingRight: 5,
-	},
 	horizontal: {
         flexDirection: 'row',
 	},
@@ -218,8 +231,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	container: {
-		paddingLeft: 5,
-		paddingRight: 5,
+		paddingHorizontal: 10,
 		paddingTop: 5,
         shadowColor: '#000000',
         shadowOffset: {
@@ -229,8 +241,8 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
 	},
 	image: {
-        width: Dimensions.get('window').width -10,
-		minHeight: (Dimensions.get('window').width -10) / 1.766,
+        width: Dimensions.get('window').width,
+		minHeight: Dimensions.get('window').width  / 1.766,
 		paddingTop: 10,
 	},
 	title: {
@@ -238,6 +250,7 @@ const styles = StyleSheet.create({
 		marginBottom: 5,
 		fontWeight: 'bold',
 		fontSize: 18,
+		fontFamily: 'roboto',
 	},
 	link: {
 		marginTop: 12,
@@ -254,10 +267,11 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	greyColor: {
-		color: '#949494',
+		color: '#777777',
 	},
 	blueColor: {
 		color: '#1E88E5',
+		//color: '#20B1D8'
 	},
 	greybottomline: {
 		borderColor: '#949494',

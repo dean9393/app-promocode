@@ -62,16 +62,22 @@ export default class ReviewScreen extends React.Component
         <View style={styles.container}>
             { this.state.isLoad && 
                 <View>
-                { !(rev.quantity > 0) &&
+                { (rev.quantity > 0) &&
                     <ScrollView style={styles.scrollview}>
                         { rev.rev.map((review, index)=>{ 
                             return(
                                 <Review key={index} data={review} />
                             )
                         })}
-                    </ScrollView>
+                        <Button
+                            large
+                            title='Добавить отзыв'
+                            color='#fff'
+                            onPress={this.pressButton}
+                            buttonStyle={styles.button2} />
+                    </ScrollView>                   
                 }
-                {!(rev.quantity == 0) &&
+                { (rev.quantity == 0) &&
                     <View style={styles.textBlock}>
                         <Text style={{fontSize: 16}}>Отзывов еще нет</Text>
                         <Button
@@ -81,8 +87,6 @@ export default class ReviewScreen extends React.Component
                             onPress={this.pressButton}
                             buttonStyle={styles.button} />
                     </View>
-                       
-
                 }
                 </View>
             }
@@ -125,5 +129,9 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: Colors.bottomButton,
         marginTop: 20,
+    },
+    button2: {
+        backgroundColor: Colors.bottomButton,
+        marginVertical: 20,
     }
 })

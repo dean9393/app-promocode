@@ -31,7 +31,7 @@ export default class InfoMapScreen extends React.Component
         return(
             <View style={styles.container}>
                 <WebView 
-                    source={{uri:'http://promocodehealth.ru/public/onemap/'+info.coord+'/'+info.title}} 
+                    source={{uri:'http://promocodehealth.ru/public/onemap/'+info.coord+'/'+info.title+'/10'}} 
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
                     renderLoading={this.ActivityIndicatorLoadingView} 

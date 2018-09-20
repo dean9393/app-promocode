@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, Dimensions, StyleSheet, Text,TouchableHighlight, } from 'react-native';
+import { View, Image,StyleSheet, Text,TouchableHighlight, } from 'react-native';
 import ImageSlider from 'react-native-image-slider';
 import Colors from '../constants/Colors';
 
@@ -56,22 +56,19 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,backgroundColor: 'transparent',
     },
-    customImage: {
-        width: Dimensions.get('window').width - 40,
-        height: (Dimensions.get('window').width - 40) / 1.766,
-    },
     buttons: {
         position: 'absolute',
         bottom: 15,
-        right: 5,
+        right: 0,
         flex: 1,
         flexDirection: 'row',
+        paddingRight: 15,
     },
     button: {
         backgroundColor: '#D3D6D6',
         width: 15,
         height: 5,
-        marginHorizontal: 5,
+        marginHorizontal: 2,
         borderRadius: 2,
     },
     buttonSelected: {
