@@ -3,28 +3,124 @@ import {
 	View, 
 	Text, 
     StyleSheet,
-    Dimensions,
-    AsyncStorage,
-    TextInput
+    TextInput,
+    Linking
 } from 'react-native';
 import { Button } from 'react-native-elements'
-import { TextInput } from 'react-native-gesture-handler';
+import { TextInputMask } from 'react-native-masked-text'
+import { withNavigation } from 'react-navigation';
+import Colors from '../constants/Colors';
 
 class LoginScreen extends React.Component
 {
+    constructor(props)
+    {
+        super(props);
+        this.state = {
+            disButton: true,
+            phone: "",
+        }
+    }
+
+    pressButton = () => {
+        this.state.navigation.navigate("Pin", {phone: this.state.phone});
+	};
+
     render()
     {
-        <View>
-            <Text>Регистрация / Войти</Text>
-            <Text>Введите номер телефона</Text>
-            <TextInput />
-            <Text>Регистрируясь / Авторизуясь в приложении вы соглашаетесь с условиями <Text>Политики конфиденциальности</Text> и <Text>Пользовательским соглашением</Text></Text>
+        return( 
+        <View style={ styles.container }>
+            <Text style={ styles.title }>Регистрация / Войти</Text>
+            <Text style={ styles.phone_title }>Введите номер телефона</Text>
+            
+            <TextInputMask 
+                ref={ref => (this._myphone = ref)}
+                style={ styles.phone }
+                type={'cel-phone'}
+                placeholder= '+7 (000) 000-00-00'
+                options={{
+                    dddMask: '+7 (999) 999-99-99',
+                }}
+                value={ this.state.phone }
+                onChangeText={phone => {
+                    if(phone.length == 18){
+                        this.setState({
+                            disButton: false,
+                            phone: phone
+                        })
+                    }else{
+                        if(!this.state.disButton)
+                            this.setState({
+                                disButton: true,
+                                phone: phone
+                            })
+                    }
+                }}
+                maxLength={18}
+                underlineColorAndroid='transparent'
+                selectionColor={Colors.bottomButton}
+            />
             <Button
                 large
                 title='Отправить'
-                color='#8bc34a'
-                onPress={this.pressButton}
-                style={styles.button} />
+                color='#fff'
+                onPress={ this.pressButton }
+                buttonStyle={ styles.button }
+                disabled={ this.state.disButton }
+                disabledStyle={ styles.disabledButtom }
+            />
+            <Text style={ styles.desc }>Регистрируясь / Авторизуясь в приложении вы соглашаетесь с условиями <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/privacy/') } }>Политики конфиденциальности</Text> и <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/Terms/') } } >Пользовательским соглашением</Text></Text>
         </View>
+        )
     }
 }
+export default withNavigation(LoginScreen)
+
+const styles = StyleSheet.create({
+    button: {
+        backgroundColor: Colors.bottomButton,
+        marginVertical: 20,
+        marginTop: 60,
+        marginBottom: 30,
+        marginHorizontal: 0,
+        width: '100%',
+    },
+    title: {
+        fontFamily: 'roboto',
+        fontSize: 20,
+        textAlign: 'center',
+        marginTop:  40,
+        marginBottom: 30,
+    },
+    container: {
+        paddingHorizontal: 15,
+        flex: 1,
+    },
+    phone_title: {
+        textAlign: 'center',
+        fontSize: 16,
+        fontFamily: 'roboto',
+        marginBottom: 30,
+    },
+    phone: {
+        fontFamily: 'roboto',
+        fontSize: 24,
+        borderBottomWidth: 1,
+        borderBottomColor: '#000',
+        minWidth: 240,
+        textAlign: 'center',
+        paddingBottom: 10,
+        color: Colors.bottomButton,
+    },
+    desc: {
+        textAlign: 'justify',
+        fontFamily: 'roboto',
+        color: '#c0c0c0',
+    },
+    link: {
+        color: 'rgb(103, 176, 214)',
+    },
+    disabledButtom: {
+        backgroundColor: '#c0c0c0'
+    }
+})

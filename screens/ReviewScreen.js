@@ -11,8 +11,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Review from '../components/Review';
 import { Button } from 'react-native-elements'
 import Colors from '../constants/Colors';
+import { withNavigation } from 'react-navigation';
 
-export default class ReviewScreen extends React.Component
+class ReviewScreen extends React.Component
 {
     constructor(props)
     {
@@ -38,18 +39,29 @@ export default class ReviewScreen extends React.Component
             console.error('review: '+error);
         })*/
 
+        let way = '';
+        if(AsyncStorage.getItem('userToken'))
+        {
+            way = 'Login';
+        }else{
+            way = 'Home';
+        }
+
         this.setState({
             rev: require('../components/Review.json'),
             isLoad: true,
+            press: way,
         })
+
+
     }
 
     pressButton()
     {
-        //let isUser = AsyncStorage.getItem('userToken');
         if(AsyncStorage.getItem('userToken'))
         {
             this.props.navigation.navigate('Login', {back:'review'});
+            this.props.navigation.state.params.navigation.navigate('Home');
         }else{
             this.props.navigation.navigate('Home');
         }
@@ -73,7 +85,7 @@ export default class ReviewScreen extends React.Component
                             large
                             title='Добавить отзыв'
                             color='#fff'
-                            onPress={this.pressButton}
+                            onPress={()=>{console.log(this.state.press); this.props.navigation.navigate(this.state.press)}}
                             buttonStyle={styles.button2} />
                     </ScrollView>                   
                 }
@@ -101,6 +113,8 @@ export default class ReviewScreen extends React.Component
         )
     }
 }
+
+export default withNavigation(ReviewScreen)
 
 const styles = StyleSheet.create({
     container: {

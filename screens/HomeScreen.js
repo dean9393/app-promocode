@@ -23,6 +23,7 @@ export default class HomeScreen extends React.Component {
     this.state = {
       isLoad: false
     }
+    this.props.navigation.navigate('Login');
   }
 
   componentDidMount() {

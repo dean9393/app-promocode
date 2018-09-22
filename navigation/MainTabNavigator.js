@@ -11,6 +11,8 @@ import PromoScreen from '../screens/PromoScreen';
 import InfoScreen from '../screens/InfoScreen';
 import InfoMapScreen from '../screens/InfoMapScreen';
 import ReviewScreen from '../screens/ReviewScreen';
+import LoginScreen from '../screens/LoginScreen';
+import PinScreen from '../screens/PinScreen';
 
 const HomeStack = createStackNavigator({
   Home: {
@@ -73,6 +75,31 @@ const HomeStack = createStackNavigator({
     screen: ReviewScreen,
     navigationOptions: {
       title: 'Отзывы',
+      headerStyle: {
+        backgroundColor: Colors.navigationTitle,
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
+    }
+  },
+  Login: {
+    screen: LoginScreen,
+    navigationOptions: {
+      title: 'Вход',
+      headerStyle: {
+        backgroundColor: Colors.navigationTitle,
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'roboto',
+      },
+    }
+  },
+  Pin: {
+    screen: PinScreen,
+    navigationOptions: {
       headerStyle: {
         backgroundColor: Colors.navigationTitle,
       },

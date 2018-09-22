@@ -2,7 +2,6 @@ import React from 'react';
 import { 
 	View, 
 	Text, 
-	Image, 
 	StyleSheet, 
 	Dimensions, 
 	TouchableOpacity,
@@ -14,9 +13,10 @@ import { Icon } from 'expo';
 import Review from '../components/Review';
 import HTML from 'react-native-render-html';
 import Slider from '../components/Slider';
+import { withNavigation } from 'react-navigation';
 
 
-export default class PromoScreen extends React.Component {
+class PromoScreen extends React.Component {
 
   	constructor(props)
   	{
@@ -30,17 +30,6 @@ export default class PromoScreen extends React.Component {
         title: navigation.state.params.title,
 	});
 	
-	// open site in browser
-	handleClick = (site) => {
-		Linking.canOpenURL(site).then(supported => {
-		  if (supported) {
-			Linking.openURL(site);
-		  } else {
-			console.log("Don't know how to open URI: " + site);
-		  }
-		});
-	};
-
     componentDidMount() {
 		/*var res = this.props.navigation.state.params.id;
       	fetch('http://promocodehealth.ru/public/api/promo/'+res)
@@ -159,7 +148,7 @@ export default class PromoScreen extends React.Component {
 							<WebView source={{uri:'http://promocodehealth.ru/public/onemap/'+promo.coordinates+'/'+promo.title + '/15'}} style={styles.map} />
 							<Text style={styles.address}>{promo.address}</Text>
 						</TouchableOpacity>
-						<TouchableOpacity onPress={()=>{this.props.navigation.navigate('ReviewList', {id: promo.id})}}>
+						<TouchableOpacity onPress={()=>{this.props.navigation.navigate('ReviewList', {id: promo.id, navigation: this.props.navigation})}}>
 							<View style={[styles.horizontal, styles.allrow]}>
 								<Text style={styles.title}>Отзывы <Text style={styles.countReview}>{promo.rev_quantity}</Text></Text>
 								<Text style={styles.link}>Все отзывы</Text>
@@ -218,6 +207,7 @@ export default class PromoScreen extends React.Component {
 		return site;
 	}
 }
+export default withNavigation(PromoScreen)
 
 const styles = StyleSheet.create({
 	body: {
