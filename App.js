@@ -1,7 +1,19 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View, AsyncStorage } from 'react-native';
-import { AppLoading, Font, Icon } from 'expo';
+import { 
+  Platform, 
+  StatusBar, 
+  StyleSheet, 
+  View, 
+  AsyncStorage 
+} from 'react-native';
+import { 
+  AppLoading, 
+  Font, 
+  Icon 
+} from 'expo';
 import AppNavigator from './navigation/AppNavigator';
+import { Provider } from 'react-redux';
+import { store } from './redux/app-redux';
 
 export default class App extends React.Component {
   state = {
@@ -19,14 +31,15 @@ export default class App extends React.Component {
           onFinish={this._handleFinishLoading}
         />
         </View>
-        
       );
     } else {
       return (
-        <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
+        <Provider store={store}>
+          <View style={styles.container}>
+            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+            <AppNavigator />
+          </View>
+        </Provider>
       );
     }
   }
@@ -56,10 +69,9 @@ export default class App extends React.Component {
   };
 
   _check = async () => {
-    let context = this;
     try {
       let value = await AsyncStorage.getItem('city_id');
-      if(value == null){console.log(value);
+      if(value == null){
         AsyncStorage.setItem('city_id', "1");
         AsyncStorage.setItem('city', 'Краснодар');
       }
@@ -85,3 +97,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#E9E9E9',
   },
 });
+
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  }
+}
+const mapDispatchToProps = dispatch => {
+  return {
+    add: (name) => {
+      dispatch(addPlace(name))
+    }
+  }
+}

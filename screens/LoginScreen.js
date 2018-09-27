@@ -3,9 +3,10 @@ import {
 	View, 
 	Text, 
     StyleSheet,
-    TextInput,
-    Linking
+    Linking,
+    BackHandler
 } from 'react-native';
+import { HeaderBackButton } from 'react-navigation';
 import { Button } from 'react-native-elements'
 import { TextInputMask } from 'react-native-masked-text'
 import { withNavigation } from 'react-navigation';
@@ -20,10 +21,29 @@ class LoginScreen extends React.Component
             disButton: true,
             phone: "",
         }
+        this.back = this.props.navigation.state.params.back;
+    }
+
+    // back bottom
+    static navigationOptions = ({navigation}) => {
+        return{
+            headerLeft:(<HeaderBackButton tintColor='#fff' onPress={()=>{navigation.navigate('ReviewList')}}/>)
+        }
+    }
+
+    componentDidMount() {
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('ReviewList')
+            return true;
+        });
+    }
+      
+    componentWillUnmount() {
+        this.backHandler.remove();
     }
 
     pressButton = () => {
-        this.state.navigation.navigate("Pin", {phone: this.state.phone});
+        this.props.navigation.navigate("Pin", {phone: this.state.phone, back: this.back});
 	};
 
     render()
@@ -69,7 +89,7 @@ class LoginScreen extends React.Component
                 disabled={ this.state.disButton }
                 disabledStyle={ styles.disabledButtom }
             />
-            <Text style={ styles.desc }>Регистрируясь / Авторизуясь в приложении вы соглашаетесь с условиями <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/privacy/') } }>Политики конфиденциальности</Text> и <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/Terms/') } } >Пользовательским соглашением</Text></Text>
+            <Text style={ styles.desc }>Регистрируясь / Авторизуясь в приложении вы соглашаетесь с условиями <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/privacy.html') } }>Политики конфиденциальности</Text> и <Text style={ styles.link } onPress={ () => { Linking.openURL('http://promocodehealth.ru/terms.html') } } >Пользовательским соглашением</Text></Text>
         </View>
         )
     }

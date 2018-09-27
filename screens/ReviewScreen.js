@@ -4,14 +4,13 @@ import {
 	Text, 
     StyleSheet,
     ActivityIndicator,
-    Dimensions,
-    AsyncStorage
+    Dimensions, AsyncStorage
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Review from '../components/Review';
 import { Button } from 'react-native-elements'
 import Colors from '../constants/Colors';
-import { withNavigation } from 'react-navigation';
+import { withNavigation, NavigationEvents } from 'react-navigation';
 
 class ReviewScreen extends React.Component
 {
@@ -22,12 +21,14 @@ class ReviewScreen extends React.Component
         this.state={
             isLoad: false
         }
+        AsyncStorage.setItem('user', null)
+        this.id = 0;
     }
 
     componentDidMount()
     {
-        /*var id = this.props.navigation.state.params.id;
-      	fetch('http://promocodehealth.ru/public/api/review/'+id)
+        this.id = this.props.navigation.state.params.id;
+      	/*fetch('http://promocodehealth.ru/public/api/review/'+this.id)
       	.then((response) => response.json())
       	.then((responseJson) => {
         	this.setState({
@@ -39,32 +40,22 @@ class ReviewScreen extends React.Component
             console.error('review: '+error);
         })*/
 
-        let way = '';
-        if(AsyncStorage.getItem('userToken'))
-        {
-            way = 'Login';
-        }else{
-            way = 'Home';
-        }
+        /*willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+              //this.forceUpdate();
+              console.log(this.props.navigation.state.params.sign)
+            }
+        );*/
 
         this.setState({
             rev: require('../components/Review.json'),
-            isLoad: true,
-            press: way,
+            isLoad: true
         })
-
-
     }
 
-    pressButton()
-    {
-        if(AsyncStorage.getItem('userToken'))
-        {
-            this.props.navigation.navigate('Login', {back:'review'});
-            this.props.navigation.state.params.navigation.navigate('Home');
-        }else{
-            this.props.navigation.navigate('Home');
-        }
+    pressButton = () => {
+        this.props.navigation.navigate('CreateReview', {id: this.id})
     }
 
     render()
@@ -85,8 +76,8 @@ class ReviewScreen extends React.Component
                             large
                             title='Добавить отзыв'
                             color='#fff'
-                            onPress={()=>{console.log(this.state.press); this.props.navigation.navigate(this.state.press)}}
-                            buttonStyle={styles.button2} />
+                            onPress={ this.pressButton }
+                            buttonStyle={ styles.button2 } />
                     </ScrollView>                   
                 }
                 { (rev.quantity == 0) &&
@@ -96,8 +87,8 @@ class ReviewScreen extends React.Component
                             large
                             title='Добавить отзыв'
                             color='#fff'
-                            onPress={this.pressButton}
-                            buttonStyle={styles.button} />
+                            onPress={ this.pressButton }
+                            buttonStyle={ styles.button } />
                     </View>
                 }
                 </View>
