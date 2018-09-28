@@ -4,8 +4,9 @@ import {
 	Text, 
 	StyleSheet, 
 } from 'react-native';
-import {Avatar} from 'react-native-elements';
+import { Avatar } from 'react-native-elements';
 import { Icon } from 'expo';
+import Colors from '../constants/Colors';
 
 export default class Review extends React.Component
 {
@@ -14,36 +15,40 @@ export default class Review extends React.Component
         super(props);
     }
 
+//
+// Render...
+//
+
     render()
     {
         const review = this.props.data;
     return(
-        <View style={[styles.horizontal, styles.container]}>
-			<View style={styles.avatarContainer}>
+        <View style={ [styles.horizontal, styles.container] }>
+			<View style={ styles.avatarContainer }>
 				<Avatar
 					medium
 					rounded
-					source={{uri:'http://promocodehealth.ru/public/storage/' +review.avatar}}
-					activeOpacity={0.7} />
+					source={{ uri:'http://promocodehealth.ru/public/storage/' +review.avatar }}
+					activeOpacity={ 0.7 } />
 			</View>
-			<View style={styles.grow}>
-				<View style={[styles.horizontal, styles.allrow]}>
+			<View style={ styles.grow }>
+				<View style={ [styles.horizontal, styles.allrow] }>
 					<View>
-						<Text style={styles.name}>{review.name}</Text>
-						<Text style={styles.date}>{this._dateFormat(review.created_at)}</Text>
+						<Text style={ styles.name }>{ review.name }</Text>
+						<Text style={ styles.date }>{ this._dateFormat(review.created_at) }</Text>
 					</View>
 					<View>
                         <Icon.FontAwesome
-        					name={(review.status) ? 'plus' : 'minus'}
-        					size={26}
-        					color={'#000'} />
+        					name={ (review.status) ? 'plus' : 'minus' }
+        					size={ 26 }
+        					color={ Colors.bottomButton } />
 					</View>
 				</View>
-			    <View style={styles.block}>
-					<Text style={styles.title}>Понравилось</Text>
-					<Text>{review.positive}</Text>
-					<Text style={styles.title}>Не понравилось</Text>
-					<Text>{review.negative}</Text>
+			    <View style={ styles.block }>
+					<Text style={ styles.title }>Понравилось</Text>
+					<Text>{ review.positive }</Text>
+					<Text style={ styles.title }>Не понравилось</Text>
+					<Text>{ review.negative }</Text>
 				</View>
 			</View>
 		</View>

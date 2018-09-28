@@ -21,7 +21,6 @@ class ReviewScreen extends React.Component
         this.state={
             isLoad: false
         }
-        AsyncStorage.setItem('user', null)
         this.id = 0;
     }
 

@@ -81,7 +81,7 @@ class PinScreen extends React.Component
         });
         
         // Check if we're at zero.
-        if (seconds == 0) { 
+        if (seconds <= 0) { 
           clearInterval(this.timer);
           this.setState({
                 time: 'Отправить еще раз',
@@ -113,8 +113,8 @@ class PinScreen extends React.Component
                 {phone: this.phone},
             )
             .then(response => {
-                this._setData(response.data)
-                this.props.setUser(response.data)
+                this._setData(response.data.data[0].token)
+                this.props.setUser(response.data.data[0])
                 
                 this.props.navigation.navigate(this.back)
             })
@@ -135,7 +135,7 @@ class PinScreen extends React.Component
 
     _setData = async (data) => {
         try{
-            await AsyncStorage.setItem('user', data)
+            await AsyncStorage.setItem('token', data)
         }
         catch(error){
             console.log('PinScreen setData: ' + error);

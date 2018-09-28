@@ -113,7 +113,7 @@ const HomeStack = createStackNavigator({
   	CreateReview: {
     	screen: CreateReviewScreen,
     	navigationOptions: {
-      		title: 'Создать',
+      		title: 'Оставить отзыв',
       		headerStyle: {
         		backgroundColor: Colors.navigationTitle,
       		},
