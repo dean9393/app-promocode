@@ -4,18 +4,14 @@ import {
 	Text, 
     StyleSheet,
     ActivityIndicator,
-    Platform,
     Keyboard,
     TextInput,
     ScrollView,
-    KeyboardAvoidingView,
 } from 'react-native';
 import { Button, ButtonGroup } from 'react-native-elements'
 import { withNavigation } from 'react-navigation';
 import Colors from '../constants/Colors';
 import axios from 'axios';
-
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
 
 import { connect } from 'react-redux';
 import { setUser } from '../redux/app-redux';

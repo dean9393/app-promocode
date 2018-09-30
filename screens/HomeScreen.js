@@ -39,6 +39,7 @@ export default class HomeScreen extends React.Component {
           console.error('promotions: '+error);
         })
       })*/
+
       this.setState({
         promotions: require('../components/PromoList.json'),
         isLoad: true,

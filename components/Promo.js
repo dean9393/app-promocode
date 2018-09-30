@@ -46,11 +46,8 @@ class Promo extends React.Component
                     </View>
                     <Slider 
                     images={ imgs }
-                    // radius
                     r={ 5 }
-                    // widrh
                     w={ Dimensions.get('window').width - 40 }
-                    // height
                     h={ (Dimensions.get('window').width - 40) / 1.766 } />
                 </View>
                 <Text style={ styles.title }>{ promo.title }</Text>

@@ -14,6 +14,7 @@ import ReviewScreen from '../screens/ReviewScreen';
 import LoginScreen from '../screens/LoginScreen';
 import PinScreen from '../screens/PinScreen';
 import CreateReviewScreen from '../screens/CreateReviewScreen';
+import RewardScreen from '../screens/RewardScreen'
 
 const HomeStack = createStackNavigator({
   	Home: {
@@ -92,7 +93,8 @@ const HomeStack = createStackNavigator({
       		headerStyle: {
         		backgroundColor: Colors.navigationTitle,
       		},
-      		headerTintColor: '#fff',
+			headerTintColor: '#fff',
+			tabBarVisible: false,
       		headerTitleStyle: {
         		fontFamily: 'roboto',
       		},
@@ -122,7 +124,20 @@ const HomeStack = createStackNavigator({
         		fontFamily: 'roboto',
       		},
     	}
-  	}
+	},
+	Reward: {
+		screen: RewardScreen,
+		navigationOptions: {
+			title: 'Промокод',
+			headerStyle: {
+			  backgroundColor: Colors.navigationTitle,
+			},
+			headerTintColor: '#fff',
+			headerTitleStyle: {
+			  fontFamily: 'roboto',
+			},
+	  }
+	}  
 });
 
 HomeStack.navigationOptions = {

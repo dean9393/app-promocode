@@ -109,23 +109,65 @@ class PinScreen extends React.Component
                 load: true
             })
 
-            axios.post('http://promocodehealth.ru/public/api/registration',
-                {phone: this.phone},
-            )
-            .then(response => {
-                this._setData(response.data.data[0].token)
-                this.props.setUser(response.data.data[0])
-                
-                this.props.navigation.navigate(this.back)
-            })
-            .catch(error => {
-                console.log("wasn't send sms : " + error);
-                this.setState({
-                    load: false,
-                    code: "",
-                    seconds: 0
+            // navigate Create Review
+            if(this.back == 'CreateReview'){
+                axios.post('http://promocodehealth.ru/public/api/registration',
+                    {phone: this.phone},
+                )
+                .then(response => {
+                    this._setData(response.data.data[0].token)
+                    this.props.setUser(response.data.data[0])
+                    
+                    this.props.navigation.navigate(this.back)
                 })
-            });
+                .catch(error => {
+                    console.log("wasn't send sms : " + error);
+                    this.setState({
+                        load: false,
+                        code: "",
+                        seconds: 0
+                    })
+                });
+            }
+            // navigate Promo without User
+            else if(this.back == 'Promo' && this.props.user == null){
+                axios.post('http://promocodehealth.ru/public/api/promocodenologin',
+                    {phone: this.phone,
+                    promotion_id: this.props.navigation.state.params.id},
+                )
+                .then(response => {
+                    this._setData(response.data.data.token)
+                    this.props.setUser(response.data.data)
+
+                    this.props.navigation.navigate('Reward', {promocode: response.data.data.promocode, status: response.data.data.status})
+                })
+                .catch(error => {
+                    console.log("wasn't send sms : " + error);
+                    this.setState({
+                        load: false,
+                        code: "",
+                        seconds: 0
+                    })
+                });
+            }
+            // navigate Promo with User
+            else if(this.back == 'Promo' && this.props.user){
+                axios.post('http://promocodehealth.ru/public/api/promocodelogin',
+                    {user_id: this.props.user.id,
+                    promotion_id: this.props.navigation.state.params.id},
+                )
+                .then(response => {
+                    this.props.navigation.navigate('Reward', {promocode: response.data.data.promocode, status: response.data.data.status})
+                })
+                .catch(error => {
+                    console.log("wasn't send sms : " + error);
+                    this.setState({
+                        load: false,
+                        code: "",
+                        seconds: 0
+                    })
+                });
+            }
         }else{
             this.setState({
                 code: ""

@@ -11,15 +11,31 @@ import { Button } from 'react-native-elements'
 import { TextInputMask } from 'react-native-masked-text'
 import { withNavigation } from 'react-navigation';
 import Colors from '../constants/Colors';
+import { connect } from 'react-redux';
+import { setUser } from '../redux/app-redux';
+
+const mapStateToProps = (state) => {
+    return{
+        user: state.user,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setUser: (text) => {dispatch(setUser(text))}
+    };
+}
 
 class LoginScreen extends React.Component
 {
     constructor(props)
     {
         super(props);
+
+        this.phone = (this.props.user == null) ? '' : this.props.user.phone
         this.state = {
-            disButton: true,
-            phone: "",
+            disButton: (this.props.user && this.props.user.phone.length == 18)? false : true,
+            phone: this.phone,
         }
         this.back = this.props.navigation.state.params.back;
     }
@@ -27,13 +43,18 @@ class LoginScreen extends React.Component
     // back bottom
     static navigationOptions = ({navigation}) => {
         return{
-            headerLeft:(<HeaderBackButton tintColor='#fff' onPress={()=>{navigation.navigate('ReviewList')}}/>)
+            headerLeft:(<HeaderBackButton tintColor='#fff' onPress={()=>{ 
+                if(this.back == 'CreateReview') navigation.navigate('ReviewList')
+                else navigation.navigate('Promo')
+            }}/>),
+            tabBarVisible: false,
         }
     }
 
     componentDidMount() {
         this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            this.props.navigation.navigate('ReviewList')
+            if(this.back == 'CreateReview') this.props.navigation.navigate('ReviewList')
+            else this.props.navigation.navigate('Promo')
             return true;
         });
     }
@@ -44,13 +65,18 @@ class LoginScreen extends React.Component
 
     pressButton = () => {
         this.props.navigation.navigate("Pin", {phone: this.state.phone, back: this.back});
+        if(this.back == 'Promo'){
+            this.props.navigation.navigate("Pin", {phone: this.state.phone, back: this.back, id:this.props.navigation.state.params.id});
+        }
 	};
 
     render()
     {
         return( 
         <View style={ styles.container }>
-            <Text style={ styles.title }>Регистрация / Войти</Text>
+            <Text style={ styles.title }>{
+                (this.props.navigation.state.params.status == 'confirm')? 'Подтвердите' : 'Регистрация / Войти'
+            }</Text>
             <Text style={ styles.phone_title }>Введите номер телефона</Text>
             
             <TextInputMask 
@@ -94,7 +120,7 @@ class LoginScreen extends React.Component
         )
     }
 }
-export default withNavigation(LoginScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen)
 
 const styles = StyleSheet.create({
     button: {

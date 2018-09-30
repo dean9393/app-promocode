@@ -7,6 +7,7 @@ import {
 	TouchableOpacity,
 	WebView,
 	Linking,
+	ActivityIndicator
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Icon } from 'expo';
@@ -14,7 +15,23 @@ import Review from '../components/Review';
 import HTML from 'react-native-render-html';
 import Slider from '../components/Slider';
 import { withNavigation } from 'react-navigation';
+import { connect } from 'react-redux';
+import { setUser } from '../redux/app-redux';
+import Colors from '../constants/Colors';
+import { Button } from 'react-native-elements';
+import axios from 'axios';
 
+const mapStateToProps = (state) => {
+    return{
+        user: state.user,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setUser: (text) => {dispatch(setUser(text))}
+    };
+}
 
 class PromoScreen extends React.Component {
 
@@ -23,7 +40,9 @@ class PromoScreen extends React.Component {
     	super(props);
     	this.state={
 			isLoad: false,
-    	}
+			disButton: false,
+		}
+		this.promo = null;
 	}
 
 	static navigationOptions = ({ navigation }) => ({
@@ -31,28 +50,37 @@ class PromoScreen extends React.Component {
 	});
 	
     componentDidMount() {
-		/*var res = this.props.navigation.state.params.id;
-      	fetch('http://promocodehealth.ru/public/api/promo/'+res)
-      	.then((response) => response.json())
-      	.then((responseJson) => {
-        	this.setState({
-              	promo: responseJson,
-              	isLoad: true
-            });
-        })
-        .catch((error) =>{
-            console.error('promo: '+error);
-        })*/
 
-       	this.setState({
-          promo: require('../components/Promo.json'),
-          isLoad: true,
+       	/*this.setState({
+          	promo: require('../components/Promo.json'),
+		  	isLoad: true,
+		})*/
+
+		var res = this.props.navigation.state.params.id;
+		var usr = (this.props.user) ? this.props.user.id : 0;
+		
+		axios.post('http://promocodehealth.ru/public/api/promo',{
+			id: res,
+			user_id: usr
+		})
+		.then(response => {	
+		
+			this.setState({
+				promo: response.data,
+				isLoad: true,
+				isBuy: (response.data.received.length == 0) ? true : false,
+				disButton: (response.data.received.length == 0) ? false : true,
+			})
+		})
+		.catch(error => {
+			console.log('promo: ' + error);
 		})
 		
     }
 
     render()
     {
+		//const promo = this.promo;
 		const promo = this.state.promo;
 
 		const imgs = [];
@@ -67,15 +95,14 @@ class PromoScreen extends React.Component {
         return(
             <View style={styles.body}>
 				{ this.state.isLoad && 
+				<View>
 				<ScrollView>
 					<Slider 
-                    images={ imgs }
-                    // radius
-                    r={ 0 }
-                    // widrh
-                    w={ Dimensions.get('window').width }
-                    // height
-                    h={ Dimensions.get('window').width  / 1.766 } />
+                    	images={ imgs }
+                    	r={ 0 }
+                    	w={ Dimensions.get('window').width }
+                    	h={ Dimensions.get('window').width  / 1.766 } 
+					/>
 					<View style={styles.container}>
 						<Text style={styles.title}>{promo.title}</Text>
 						<View style={[styles.horizontal, styles.allrow, styles.block, styles.mTop]}>
@@ -95,6 +122,10 @@ class PromoScreen extends React.Component {
 								</Text>
 								<Text style={styles.blueColor}>ОСТАЛОСЬ</Text>
 							</View>
+						</View>
+						<View>
+							<Text style={[styles.toptoken, styles.greyColor]}>{promo.price * ((100 - promo.sale) / 100)}₽</Text>
+							<Text style={[styles.greyColor, styles.textcenter]}>ЦЕНА</Text>
 						</View>
 						{ promo.sales &&
 						<View style={styles.mBottom}>
@@ -167,10 +198,34 @@ class PromoScreen extends React.Component {
 							}
 						</TouchableOpacity>
 					</View>
+					<View style={styles.emptyBlock}></View>
 				</ScrollView>
+				<Button
+					large
+					title={(this.state.isBuy) ? 'Получить промокод' : 'У вас уже есть этот промокод'}
+					color='#fff'
+					onPress={ this.pressButton }
+					buttonStyle={ styles.button } 
+					disabled={ this.state.disButton }
+				/>
+				</View>
 				}
+				{ !this.state.isLoad &&
+					<ActivityIndicator
+						color='#1E88E5'
+						size='large'
+						style={styles.ActivityIndicatorStyle}
+					/>
+            	}
 			</View>
         )
+	}
+
+	pressButton = () => {
+		if(this.state.isBuy && this.props.user)
+			this.props.navigation.navigate('Pin', {back: 'Promo', phone: this.props.user.phone, id: this.props.navigation.state.params.id})
+		else 
+			this.props.navigation.navigate('Login', {back: 'Promo', id: this.props.navigation.state.params.id})
 	}
 	
 	/*
@@ -207,7 +262,7 @@ class PromoScreen extends React.Component {
 		return site;
 	}
 }
-export default withNavigation(PromoScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(PromoScreen)
 
 const styles = StyleSheet.create({
 	body: {
@@ -299,5 +354,29 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		marginBottom: 20,
 		marginTop: 15,
+	},
+	ActivityIndicatorStyle: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+	},
+	button: {
+        backgroundColor: Colors.bottomButton,
+        marginTop: 20,
+		marginBottom: 20,
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+		right: 0,
+	},
+	emptyBlock: {
+		height: 100,
+	},
+	textcenter: {
+		textAlign: 'center'
 	}
 });

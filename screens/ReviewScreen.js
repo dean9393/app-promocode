@@ -11,6 +11,21 @@ import Review from '../components/Review';
 import { Button } from 'react-native-elements'
 import Colors from '../constants/Colors';
 import { withNavigation, NavigationEvents } from 'react-navigation';
+import { connect } from 'react-redux';
+import { setUser } from '../redux/app-redux';
+import axios from 'axios';
+
+const mapStateToProps = (state) => {
+    return{
+        user: state.user,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setUser: (text) => {dispatch(setUser(text))}
+    };
+}
 
 class ReviewScreen extends React.Component
 {
@@ -26,10 +41,10 @@ class ReviewScreen extends React.Component
 
     componentDidMount()
     {
-        this.id = this.props.navigation.state.params.id;
+       this.id = this.props.navigation.state.params.id;
       	/*fetch('http://promocodehealth.ru/public/api/review/'+this.id)
       	.then((response) => response.json())
-      	.then((responseJson) => {
+      	.then((responseJson) => { console.log(responseJson)
         	this.setState({
               	rev: responseJson,
               	isLoad: true
@@ -47,10 +62,47 @@ class ReviewScreen extends React.Component
             }
         );*/
 
-        this.setState({
+        axios.post('http://promocodehealth.ru/public/api/review',
+        {
+            id: this.id
+        })
+        .then((response) =>
+            { console.log(response.data);
+                this.setState({
+                    rev: response.data,
+                    isLoad: true
+                });
+            }            
+        )
+        .catch(error => {
+			console.log('ReviewList: ' + error);
+        })
+        
+        /*willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+              this.forceUpdate();
+              //console.log(this.props.navigation.state.params.sign)
+            }
+        )
+
+        didFocus = this.props.navigation.addListener(
+            'didFocus',
+            payload => {
+              this.forceUpdate();
+              //console.log(this.props.navigation.state.params.sign)
+            }
+        )*/
+
+        /*this.setState({
             rev: require('../components/Review.json'),
             isLoad: true
-        })
+        })*/
+    }
+
+    componentWillUnmount(){
+        /*willFocus.remove();
+        didFocus.remove();*/
     }
 
     pressButton = () => {
@@ -104,7 +156,7 @@ class ReviewScreen extends React.Component
     }
 }
 
-export default withNavigation(ReviewScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(ReviewScreen)
 
 const styles = StyleSheet.create({
     container: {
