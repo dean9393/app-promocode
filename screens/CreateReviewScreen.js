@@ -5,28 +5,15 @@ import {
     StyleSheet,
     ActivityIndicator,
     Keyboard,
-    TextInput,
     ScrollView,
+    Image,
+    TouchableOpacity
 } from 'react-native';
-import { Button, ButtonGroup } from 'react-native-elements'
-import { withNavigation } from 'react-navigation';
+import { Button } from 'react-native-elements'
 import Colors from '../constants/Colors';
 import axios from 'axios';
-
 import { connect } from 'react-redux';
-import { setUser } from '../redux/app-redux';
-
-const mapStateToProps = (state) => {
-    return{
-        user: state.user,
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        setUser: (text) => {dispatch(setUser(text))}
-    };
-}
+import { TextField } from 'react-native-material-textfield';
 
 class CreateReviewScreen extends React.Component
 {
@@ -37,14 +24,15 @@ class CreateReviewScreen extends React.Component
 
         this.id = this.props.navigation.state.params.id
         this.state = {
-            selectedIndex: 1,
-            negative_scroll: false,
-            positive_scroll: false,
+            selectedIndex: null,
             hideblock: false,
-            scroll: 0,
-            isLoad: false
+            isLoad: false,
+            positive: '',
+            negative: '',
+            negError: '',
+            posError: '',
+            statusError: '',
         }
-        this.updateIndex = this.updateIndex.bind(this)
     }
 
 //
@@ -53,8 +41,9 @@ class CreateReviewScreen extends React.Component
 
     componentDidMount()
     {
-        if(this.props.user == null) {
-            this.props.navigation.navigate('Login', {back: 'CreateReview',})
+        if(this.props.store.user == null) {
+            this.props.onAddBack('CreateReview');
+            this.props.navigation.navigate('Login')
         }
 
         this.keyboardSub = Keyboard.addListener('keyboardDidHide', ()=> {
@@ -70,38 +59,35 @@ class CreateReviewScreen extends React.Component
 // Function...
 //
 
-    updateIndex (selectedIndex) {
-        this.setState({selectedIndex})
-    }
-
     pressButton = () => {
         var check = 0;
         if(!this.state.positive || this.state.positive.length <= 0){
-            this.setState({ positive_status: true })
+            this.setState({ posError: 'Обязательное поле' })
             check++
-        } else {
-            this.setState({ positive_status:false })
         }
 
         if(!this.state.negative || this.state.negative.length <= 0){
-            this.setState({ negative_status: true })
+            this.setState({ negError: 'Обязательное поле' })
             check++
-        } else {
-            this.setState({ negative_status:false })
+        }
+
+        if(this.state.selectedIndex === null) {
+            this.setState({statusError: 'Выберите'})
+            check++
         }
 
         if(check == 0){
             this.setState({isLoad: true})
-            axios.post('http://promocodehealth.ru/public/api/createreview',
+            axios.post('https://promocodehealth.ru/public/api/createreview',
             {
                 promotion_id: this.id,
-                user_id: this.props.user.id,
+                user_id: this.props.store.user.id,
                 status: this.state.selectedIndex,
                 positive: this.state.positive,
                 negative: this.state.negative,
             })
             .then((response) => {
-                console.log('createReview Response: ' + response);
+                //console.log('createReview Response: ' + response);
                 this.props.navigation.navigate('ReviewList', {id: this.id})
             })
             .catch(error => console.log('createReview Error: ' + error))
@@ -117,91 +103,83 @@ class CreateReviewScreen extends React.Component
         }, 300)
     }
 
+    selectIndex = (index) => {
+        this.setState({
+            selectedIndex: index,
+        })
+    }
+
 //
 // Render...
 //
 
     render()
-    {
-
-        const { selectedIndex } = this.state
-        const options = [ "Отридцательный", "Положительный" ];
-        
+    {       
         return(
         <View style={ styles.container }>
-            { (this.props.user && !this.state.isLoad)  && 
-                <View>
-                    <ScrollView 
+            { (this.props.store.user && !this.state.isLoad)  && 
+                <ScrollView 
                         ref={ref => this.scrl = ref}
                         style={ styles.scroll }
                     >
-                        <Text style={ styles.title }>Оставить Отзыв</Text>
-                        <ButtonGroup
-                            onPress={this.updateIndex}
-                            selectedIndex={selectedIndex}
-                            buttons={ options }
-                            containerStyle={{height: 100}}
-                            selectedButtonStyle={{ backgroundColor: Colors.bottomButton }}
-                            buttonStyle={{ backgroundColor: '#fff' }}
-                            selectedTextStyle={{ color: '#fff' }}
-                            textStyle={{ color: Colors.bottomButton }}
+                        <View style={styles.buttongroup}>
+                            <TouchableOpacity 
+                            activeOpacity={1} 
+                            style={[styles.checkButton, (this.state.selectedIndex === 1)? styles.checkBut : '']}
+                            onPress={()=>{this.setState({selectedIndex:1, statusError: ''})}}>
+                                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                                    <Image style={styles.img} source={require('../assets/images/baseline_thumb_up_alt_black_48dp.png')} />
+                                </View>
+                                <Text style={styles.butText}>Понравилось</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                            activeOpacity={1} 
+                            style={[styles.checkButton, (this.state.selectedIndex === 0)? styles.checkBut : '']}
+                            onPress={()=>{this.setState({selectedIndex:0, statusError: ''})}}>
+                                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                                    <Image style={styles.img} source={require('../assets/images/baseline_thumb_down_alt_black_48dp.png')} />
+                                </View>
+                                <Text style={styles.butText}>Не понравилось</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.error}>{this.state.statusError}</Text>
+                        <TextField
+                            label='Что понравилось?'
+                            value={ this.state.positive }
+                            onChangeText={ (positive) => this.setState({ positive }) }
+                            fontSize={16}
+                            error={this.state.posError}
+                            multiline={true}
+                            characterRestriction={120}
+                            returnKeyType='next'
+                            onFocus={() => {this.setState({posError: ''}), this.scrlto(115)}}
+                            tintColor='#009688'
                         />
-                        <Text style={ styles.subtitle }>Понравилось:</Text>
-                        <View style={ styles.textAreaContainer } ref={r => this.positive = r} >
-                            <TextInput 
-                                style={ styles.textArea }
-                                multiline={ true }
-                                numberOfLines={ 10 }
-                                maxLength={ 255 }
-                                placeholder='Что понравилось?'
-                                placeholderTextColor="grey"
-                                underlineColorAndroid="transparent"
-                                onChangeText={(positive) => this.setState({positive})}
-                                value={ this.state.positive }
-                                returnKeyType='next'
-                                onSubmitEditing={event => this.negative.focus()}
-                                onFocus={() => {this.scrlto(190)}}
-                            />
-                        </View>
-                        { this.state.positive_status && 
-                            <Text style={ styles.error }>Это поле обязательно к заполнению</Text> 
-                        }
-                        <Text style={ styles.subtitle }>Не понравилось:</Text>
-
-                        <View style={ styles.textAreaContainer } >
-                            <TextInput 
-                                style={ styles.textArea }
-                                multiline={ true }
-                                numberOfLines={ 10 }
-                                maxLength={ 255 }
-                                placeholder='Что не понравилось?'
-                                placeholderTextColor="grey"
-                                underlineColorAndroid="transparent"
-                                onChangeText={(negative) => this.setState({negative})}
-                                value={this.state.negative}
-                                ref={r => this.negative = r}
-                                returnKeyType='go'
-                                onSubmitEditing={event => this.pressButton}
-                                onFocus={() => {this.scrlto(400)}}
-                            />
-                        </View>
-                        { this.state.negative_status && 
-                            <Text style={ styles.error }>Это поле обязательно к заполнению</Text>
-                        }
+                        <TextField
+                            label='Что не понравилось?'
+                            value={ this.state.negative }
+                            onChangeText={ (negative) => this.setState({ negative }) }
+                            fontSize={16}
+                            error={this.state.negError}
+                            multiline={true}
+                            characterRestriction={120}
+                            returnKeyType='next'
+                            onFocus={() => {this.setState({negError: ''}), this.scrlto(210)}}
+                            tintColor='#009688'
+                        />
                         <Button
                             large
-                            title='Добавить отзыв'
+                            title='Оставить отзыв'
                             color='#fff'
                             onPress={ this.pressButton }
                             buttonStyle={ styles.button } 
                         />
                         { this.state.hideblock && 
-                            <View style={{ height:360 }}></View>
+                            <View style={{ height:500 }}></View>
                         }
-                    </ScrollView>
-                </View>
+                </ScrollView>
             }
-            { !this.props.user &&
+            { (!this.props.store.user || this.state.isLoad) &&
                 <ActivityIndicator
                     color='#1E88E5'
                     size='large'
@@ -209,18 +187,18 @@ class CreateReviewScreen extends React.Component
                 />
                 
             }
-            { this.state.isLoad &&
-                <ActivityIndicator
-                color='#1E88E5'
-                size='large'
-                style={styles.ActivityIndicatorStyle}
-            />
-            }
         </View>
         )
     }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(CreateReviewScreen)
+export default connect(state => ({
+    store: state
+}),
+dispatch => ({
+    onAddBack: (back) => {
+        dispatch({type: 'setBack', value: back})
+    },
+}))(CreateReviewScreen)
 
 const styles = StyleSheet.create({
     container: {
@@ -236,38 +214,40 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    title: {
-        textAlign: 'center',
-        fontFamily: 'roboto',
-        fontSize: 22,
-        marginVertical: 20,
-    },
-    subtitle: {
-        fontFamily: 'roboto',
-        fontSize: 18,
-        marginBottom: 10,
-        marginTop: 15,
-    },
     scroll: {
         paddingHorizontal: 15,
     },
-    textAreaContainer: {
-        borderColor: '#ccc',
-        borderWidth: 1,
-        padding: 5,
-        opacity:1
-    },
-    textArea: {
-        height: 150,
-        justifyContent: "flex-start",
-    },
-    error: {
-        color: 'red',
-        marginTop: 10,
-    },
     button: {
         backgroundColor: Colors.bottomButton,
-        marginTop: 20,
+        marginTop: 70,
         marginBottom: 20,
     },
+    img: {
+        width: 72,
+        height: 72,
+    },
+    buttongroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    butText: {
+        color: '#0097A7',
+        fontSize: 14,
+        fontFamily: 'roboto-medium',
+    },
+    checkButton: {
+        padding: 5,
+        marginHorizontal: 10,
+        marginVertical: 10,
+        borderWidth: 2,
+        borderColor: '#fff',
+        borderRadius: 5,
+    },
+    checkBut:{
+        borderColor: '#0097A7',
+    },
+    error: {
+        color: 'rgb(213, 0, 0)',
+        fontSize: 12,
+    }
 })

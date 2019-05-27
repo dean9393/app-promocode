@@ -5,8 +5,6 @@ import {
 	StyleSheet, 
 } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import { Icon } from 'expo';
-import Colors from '../constants/Colors';
 
 export default class Review extends React.Component
 {
@@ -21,35 +19,52 @@ export default class Review extends React.Component
 
     render()
     {
-        const review = this.props.data;
+		if('item' in this.props.data){
+			var review = this.props.data.item;
+		}
+		else{
+			var review = this.props.data;
+		}
+	var check = false;
     return(
-        <View style={ [styles.horizontal, styles.container] }>
-			<View style={ styles.avatarContainer }>
-				<Avatar
-					medium
-					rounded
-					source={{ uri:'http://promocodehealth.ru/public/storage/' +review.avatar }}
-					activeOpacity={ 0.7 } />
-			</View>
-			<View style={ styles.grow }>
-				<View style={ [styles.horizontal, styles.allrow] }>
+        <View style={styles.pad}>
+			<View style={ [styles.horizontal, styles.container] }>
+				<View style={ styles.avatarContainer }>
+					{(review.avatar != null) &&
+						<Avatar
+						medium
+						rounded
+						source={{ uri:'http://promocodehealth.ru/public/storage/' +review.avatar }}
+						activeOpacity={ 0.7 } />
+					}
+					{(review.avatar == null && (review.first_name != null || review.second_name != null)) &&
+						<Avatar
+						medium
+						rounded
+						title={(review.first_name != null)? review.first_name.substr(0,1): '' + (review.second_name != null)? review.second_name.substr(0,1): ''}
+						activeOpacity={ 0.7 }
+						titleStyle={{color:'#85C8DE'}} />
+					}
+					{(review.avatar == null && review.first_name == null && review.second_name == null) &&
+						<Avatar
+						medium
+						rounded
+						source={require('../assets/images/user_icon_stock1.png')}
+						activeOpacity={ 0.7 } />
+					}
+				</View>
+				<View style={ styles.grow }>
 					<View>
-						<Text style={ styles.name }>{ review.name }</Text>
+						<Text style={ styles.name }>{ (review.first_name != null)? review.first_name : ''+' '+ (review.second_name != null)? review.second_name : '' }</Text>
 						<Text style={ styles.date }>{ this._dateFormat(review.created_at) }</Text>
 					</View>
-					<View>
-                        <Icon.FontAwesome
-        					name={ (review.status) ? 'plus' : 'minus' }
-        					size={ 26 }
-        					color={ Colors.bottomButton } />
-					</View>
 				</View>
-			    <View style={ styles.block }>
-					<Text style={ styles.title }>Понравилось</Text>
-					<Text>{ review.positive }</Text>
-					<Text style={ styles.title }>Не понравилось</Text>
-					<Text>{ review.negative }</Text>
-				</View>
+			</View>
+			<View style={ styles.block }>
+				<Text style={ styles.title }>Что понравилось?</Text>
+				<Text style={ styles.text }>{ review.positive }</Text>
+				<Text style={ styles.title }>Что не понравилось?</Text>
+				<Text style={ styles.text }>{ review.negative }</Text>
 			</View>
 		</View>
 	)}
@@ -65,37 +80,45 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
 	},
 	container: {
-		flex: 1,
-		paddingTop: 10,
-		paddingBottom: 10,
-		borderColor: '#949494',
-		borderBottomWidth: 1,
-		marginTop: 15,
+		flex: 1,	
 	},
 	avatarContainer: {
 		paddingRight: 15,
-	},
-	allrow: {
-		justifyContent: 'space-between',
 	},
 	grow: {
 		flexGrow: 1,
 	},
 	date: {
-		color: '#ccc',
+		color: '#000',
 		paddingTop: 5,
 		paddingBottom: 5,
+		fontSize: 14,
+		fontFamily: 'roboto-medium',
+		opacity: 0.54
 	},
 	name: {
-		fontSize: 16,
+		fontSize: 14,
+		fontFamily: 'roboto-medium',
+		opacity: 0.87
 	},
 	block: {
-		paddingTop: 10,
-		paddingBottom: 10,
+		paddingTop: 5,
 	},
 	title: {
-		color: '#ccc',
-		paddingTop: 5,
-		paddingBottom: 5,
+		color: '#000',
+		paddingTop: 10,
+		paddingBottom: 10,
+		fontSize: 14,
+		fontFamily: 'roboto-medium',
+		opacity: 0.54
+	},
+	text: {
+		color: '#000',
+		fontSize: 14,
+		fontFamily: 'roboto'
+	},
+	pad: {
+		paddingHorizontal: 18,
+		paddingVertical: 10,
 	}
 })

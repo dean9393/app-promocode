@@ -4,28 +4,16 @@ import {
 	Text, 
     StyleSheet,
     ActivityIndicator,
-    Dimensions, AsyncStorage
+    FlatList,
+    Dimensions,
+    Image,
+    TouchableOpacity
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import Review from '../components/Review';
 import { Button } from 'react-native-elements'
 import Colors from '../constants/Colors';
-import { withNavigation, NavigationEvents } from 'react-navigation';
 import { connect } from 'react-redux';
-import { setUser } from '../redux/app-redux';
 import axios from 'axios';
-
-const mapStateToProps = (state) => {
-    return{
-        user: state.user,
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        setUser: (text) => {dispatch(setUser(text))}
-    };
-}
 
 class ReviewScreen extends React.Component
 {
@@ -34,129 +22,192 @@ class ReviewScreen extends React.Component
         super(props);
 
         this.state={
-            isLoad: false
+            loading: true,
+            empty: false,
+            rev: null,
+            page: 0,
+            id: this.props.navigation.state.params.id,
+            posQ: 0,
+            negQ: 0,
         }
-        this.id = 0;
     }
 
     componentDidMount()
-    {
-       this.id = this.props.navigation.state.params.id;
-      	/*fetch('http://promocodehealth.ru/public/api/review/'+this.id)
-      	.then((response) => response.json())
-      	.then((responseJson) => { console.log(responseJson)
-        	this.setState({
-              	rev: responseJson,
-              	isLoad: true
-            });
-        })
-        .catch((error) =>{
-            console.error('review: '+error);
-        })*/
-
-        /*willFocus = this.props.navigation.addListener(
-            'willFocus',
-            payload => {
-              //this.forceUpdate();
-              console.log(this.props.navigation.state.params.sign)
-            }
-        );*/
-
-        axios.post('http://promocodehealth.ru/public/api/review',
-        {
-            id: this.id
-        })
-        .then((response) =>
-            { console.log(response.data);
-                this.setState({
-                    rev: response.data,
-                    isLoad: true
-                });
-            }            
-        )
-        .catch(error => {
-			console.log('ReviewList: ' + error);
-        })
-        
-        /*willFocus = this.props.navigation.addListener(
-            'willFocus',
-            payload => {
-              this.forceUpdate();
-              //console.log(this.props.navigation.state.params.sign)
-            }
-        )
-
-        didFocus = this.props.navigation.addListener(
-            'didFocus',
-            payload => {
-              this.forceUpdate();
-              //console.log(this.props.navigation.state.params.sign)
-            }
-        )*/
-
-        /*this.setState({
-            rev: require('../components/Review.json'),
-            isLoad: true
-        })*/
+    {    
+        this.dataLoad();
     }
 
-    componentWillUnmount(){
-        /*willFocus.remove();
-        didFocus.remove();*/
+    /**
+	 * обновление информации
+	 */
+	willFocus = this.props.navigation.addListener(
+        'willFocus',
+        payload => {
+		  if(this.props.store.rReview){
+				this.setState({
+                    loading: true,
+                    page: 0,
+                    empty: false,
+                    rev: null,
+                    posQ: 0,
+                    negQ: 0,
+                    isBuy: false,
+                    disButton: false,
+				})
+                this.dataLoad()
+                this.props.onAddRReview(false)
+		  }
+        }
+    );
+
+    dataLoad = () => {
+        setTimeout(()=>{
+            axios.post('https://promocodehealth.ru/public/api/review',
+            {
+                id: this.state.id,
+                page: this.state.page,
+                user_id: (this.props.store.user) ? this.props.store.user.id : 0
+            })
+            .then((response) =>
+                { //console.log(response.data);
+                    if(response.data != false){
+                        this.setState({
+                            isBuy: (response.data.received.length == 0) ? true : false,
+                            disButton: (response.data.received.length == 0) ? true : false,
+                        })
+                    }
+                    if(response.data.rev == false) {
+                        if(this.state.rev == null){
+                            this.setState({
+                                loading: false,
+                                empty: true,
+                            })
+                        }else {
+                            this.setState({
+                                loading: false,
+                                rev: this.state.rev.concat([])
+                            })
+                        }
+                    }
+                    if(response.data.rev != false){
+                        if(this.state.rev == null){
+                            this.setState({
+                                rev: response.data.rev,
+                                page: this.state.page + 1,
+                                posQ: response.data.positive_quantity,
+                                negQ: response.data.negative_quantity,
+                            })
+                        }else {
+                            this.setState({
+                                rev: this.state.rev.concat(response.data.rev),
+                                page: this.state.page + 1,
+                                posQ: response.data.positive_quantity,
+                                negQ: response.data.negative_quantity,
+                            })
+                        }
+                    }
+                }            
+            )
+            .catch(error => {
+                console.log('ReviewList: ' + error);
+            })
+        }, 1500)
     }
 
     pressButton = () => {
-        this.props.navigation.navigate('CreateReview', {id: this.id})
+        this.props.navigation.navigate('CreateReview', {id: this.state.id})
     }
 
     render()
     {
-        const rev = this.state.rev;
         return(
         <View style={styles.container}>
-            { this.state.isLoad && 
                 <View>
-                { (rev.quantity > 0) &&
-                    <ScrollView style={styles.scrollview}>
-                        { rev.rev.map((review, index)=>{ 
-                            return(
-                                <Review key={index} data={review} />
-                            )
-                        })}
-                        <Button
-                            large
-                            title='Добавить отзыв'
-                            color='#fff'
-                            onPress={ this.pressButton }
-                            buttonStyle={ styles.button2 } />
-                    </ScrollView>                   
+                { !this.state.empty &&
+                    <View>
+                        <FlatList
+							style={ styles.scrollview }
+							data={ this.state.rev }
+							renderItem={(rev) => (
+								<Review data={ rev } />
+							)}
+                            keyExtractor={rev => rev.id.toString()}
+                            ListHeaderComponent={ this.renderHeader }
+							ListFooterComponent={ this.renderFooter }
+							onEndReached={ this.dataLoad }
+							onEndReachedThreshold={1.0}
+							showsVerticalScrollIndicator={false}
+							
+							loading={true}
+						/>
+                    </View> 
                 }
-                { (rev.quantity == 0) &&
+                { this.state.empty &&
                     <View style={styles.textBlock}>
                         <Text style={{fontSize: 16}}>Отзывов еще нет</Text>
                         <Button
                             large
-                            title='Добавить отзыв'
+                            title={(this.state.isBuy) ? 'Вы не получали промокод' : 'Добавить отзыв'}
                             color='#fff'
                             onPress={ this.pressButton }
-                            buttonStyle={ styles.button } />
+                            buttonStyle={ styles.button }
+                            disabled={ this.state.disButton } />
                     </View>
                 }
                 </View>
-            }
-            { !this.state.isLoad &&
-                <ActivityIndicator
-                    color='#1E88E5'
-                    size='large'
-                    style={styles.ActivityIndicatorStyle}
-                />
-            }
+                {this.state.page > 0 &&
+                <Button
+                    large
+                    title={(this.state.isBuy) ? 'Вы не получали промокод' : 'Добавить отзыв'}
+                    color='#01556A'
+                    onPress={ this.pressButton }
+                    buttonStyle={ styles.button2 }
+                    disabled={ this.state.disButton } />
+                }
         </View>
         )
     }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReviewScreen)
+    renderHeader = () => {
+        return (
+            this.state.page > 0 &&
+            <View style={styles.row}>
+                <TouchableOpacity activeOpacity={1} style={styles.center} onPress={()=>{this.props.navigation.navigate('CatReview',{id: this.state.id, title: 'Понравилось'})}}>
+                    <Image style={styles.hands} source={require('../assets/images/baseline_thumb_up_alt_black_48dp.png')} />
+                    <Text style={styles.handText}>Понравилось  <Text style={styles.handQuan}>({this.state.posQ})</Text></Text>
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={1} style={styles.center} onPress={()=>{this.props.navigation.navigate('CatReview',{id: this.state.id, title: 'Не понравилось'})}}>
+                    <Image style={styles.hands} source={require('../assets/images/baseline_thumb_down_alt_black_48dp.png')} />
+                    <Text style={styles.handText}>Не понравилось  <Text style={styles.handQuan}>({this.state.negQ})</Text></Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    renderFooter = () => {
+		return (
+			<View>
+                {this.state.loading &&
+                <View style={(this.state.rev) ? styles.loader : styles.centerLoader}>
+                    <ActivityIndicator size={ 50 } color={ Colors.navigationTitle } />
+                </View>
+                }
+                { !this.state.loading &&
+				<View style={styles.empty}></View>
+                }
+            </View>  
+		);
+	};
+}
+export default connect(state => ({
+    store: state
+}),
+dispatch => ({
+    onAddRReview: (ref) => {
+        dispatch({type: 'setRReview', value: ref})
+    }
+})
+)(ReviewScreen)
 
 const styles = StyleSheet.create({
     container: {
@@ -179,15 +230,53 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     scrollview: {
-		paddingLeft: 10,
-        paddingRight: 10,
+        paddingHorizontal: 10,
     },
     button: {
         backgroundColor: Colors.bottomButton,
         marginTop: 20,
     },
     button2: {
-        backgroundColor: Colors.bottomButton,
+        backgroundColor: '#DAE5EA',
         marginVertical: 20,
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+        right: 0,
+    },
+    empty: {
+        height: 80,
+        width: '100%',
+    },
+    loader: {
+        paddingTop: 15,
+        paddingBottom: 95,
+    },
+    centerLoader: {
+		padding: 10,
+		marginTop: (Dimensions.get('window').height / 2) - 80,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    hands: {
+        width: 72,
+        height: 72,
+    },
+    handText: {
+        color: '#0097A7',
+        fontSize: 14,
+        fontFamily: 'roboto-medium',
+    },
+    handQuan: {
+        color: '#D5D5D5',
+        fontSize: 16,
+        fontFamily: 'roboto',
+    },
+    center: {
+        padding: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 })

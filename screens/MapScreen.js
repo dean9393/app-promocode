@@ -19,13 +19,14 @@ export default class MapScreen extends React.Component {
         }
     }
 
+    static navigationOptions = ({ navigation }) => ({
+		title: navigation.state.params.title,
+	});
+
     componentDidMount()
     {
-        AsyncStorage.getItem('city_id').then((id)=>{
-            this.setState({
-                isLoading: true,
-                id: id,
-            })
+        this.setState({
+            isLoading: true,
         })
     }
 
@@ -45,7 +46,7 @@ export default class MapScreen extends React.Component {
             <View style={styles.container}>
                 {this.state.isLoading &&
                 <WebView 
-                    source={{uri:'http://promocodehealth.ru/public/allmap/' + this.state.id}}
+                    source={{uri:'https://promocodehealth.ru/public/allmap/' + this.props.navigation.state.params.city+'/'+this.props.navigation.state.params.cat+'/'+this.props.navigation.state.params.subcat}}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
                     renderLoading={this.ActivityIndicatorLoadingView} 

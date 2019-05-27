@@ -14,66 +14,64 @@ class Promo extends React.Component
 
     render()
     {
-        const promo = this.props.data;
-
-        const shadowOpt = {
-			width:55,
-			height:40,
-			color:"#000",
-			border:0,
-			radius:8,
-			opacity:0.2,
-			x:1,
-			y:2,
-			style:{marginVertical:1}
-        }
-        
+        const promo = this.props.data.item;
+        //console.log(promo);
         const imgs = [];
-        let url = 'http://promocodehealth.ru/public/storage/';
+        let url = 'https://promocodehealth.ru/public/storage/';
 
         (promo.img1) ? imgs.push(url + promo.img1) : '';
         (promo.img2) ? imgs.push(url + promo.img2) : '';
         (promo.img3) ? imgs.push(url + promo.img3) : '';
 
         return(
-            <View style={ styles.container }>
-            <TouchableOpacity onPress={ () => {this.props.navigation.navigate('Promo', {id:promo.id, title:promo.title})} }>
+        <View style={ styles.container }>
+            <TouchableOpacity activeOpacity={1} onPress={ () => {this.props.navigation.navigate('Promo', {id:promo.id, title:promo.title})} }>
                 <View>
-                    <View style={ styles.saleBlock } >
-                        <BoxShadow setting={ shadowOpt }>
-                            <Text style={ styles.sale }>- { promo.sale }%</Text>
-                        </BoxShadow>
-                    </View>
-                    <Slider 
-                    images={ imgs }
-                    r={ 5 }
-                    w={ Dimensions.get('window').width - 40 }
-                    h={ (Dimensions.get('window').width - 40) / 1.766 } />
+                    { (imgs.length == 1) &&
+                        <Image 
+                            source={{uri: imgs[0]}} 
+                            style={{width: Dimensions.get('window').width - 16, height: (Dimensions.get('window').width - 16) / 1.766 }} />
+                    }
+                    {(imgs.length > 1) &&
+                        <Slider 
+                        images={ imgs }
+                        w={ Dimensions.get('window').width - 16 }
+                        h={ (Dimensions.get('window').width - 16) / 1.766 }
+                        r={0}
+                        isScroll={false} />
+                    }
+                </View>
+                <View style={[ styles.horizontal, styles.rowContainer ]}>
+                    <Image style={ styles.imgRow } source={require('../assets/images/percent.png')} />
+                    <Text style={ styles.textRow }> { (promo.sale != []) ? promo.sale : 0 }</Text>
+                    <Image style={ styles.imgRow } source={require('../assets/images/baseline_access_time_black_24dp.png')} />
+                    <Text style={ styles.textRow }>{ this._getDate(promo.date_end) }</Text>
+                    <Image style={ styles.imgRow } source={require('../assets/images/baseline_message_black_24dp.png')} />
+                    <Text style={ styles.textRow }>{ promo.count_review }</Text>
+                    <Image style={ styles.imgRow } source={require('../assets/images/baseline_loyalty_black_48dp.png')} />
+                    <Text style={ styles.textRow }>{ promo.tickets - promo.rec_promo }</Text>
+                    <Image style={ styles.imgRow } source={require('../assets/images/roub.png')} />
+                    <Text style={ styles.textRow }>{ promo.price * ((100 - promo.sale) / 100) }</Text>
                 </View>
                 <Text style={ styles.title }>{ promo.title }</Text>
-                <View style={ styles.horizontal }>
-                    <Text style={ styles.italic}>{ this._getDate(promo.date_end) } </Text>
-                    <Text style={ styles.italic}>{ promo.tickets - promo.rec_promo }</Text>
-                    <TabBarIcon custom={ true } style={{ marginLeft: 1, marginBottom: 0, }} name={'tags'} font={'FontAwesome'} size={15} />
-                    <Text style={ styles.italic}>  { promo.price * ((100 - promo.sale) / 100) }₽</Text>
-                </View>
             </TouchableOpacity>
-            </View>
+        </View>
         )
     }
 
-    _getDate(dat)
+    _getDate = dat =>
     {
+        if(dat == undefined) return;
         var now = new Date();
         var stop = new Date(dat.replace(/-/g,"/"));
 
         var duration = stop - now;
-        var minutes = parseInt((duration/(1000*60))%60);
-        var hours = parseInt((duration/(1000*60*60))%24);
-        var days = parseInt(duration/(1000*60*60*24));
+        /*var minutes = parseInt((duration/(1000*60))%60);
+        var hours = parseInt((duration/(1000*60*60))%24);*/
+        var days = parseInt(duration/(1000*60*60*24)) + 1;
 
-        str = days +'д. ' + hours + 'ч. ' + minutes + 'м.';
-        return str;
+        //str = days +'д. ' + hours + 'ч. ' + minutes + 'м.';
+        return days;
     }
 }
 
@@ -84,47 +82,42 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
     },
-    saleBlock: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingTop: 30,
-        zIndex: 10,
-        position: 'absolute',
-        left: 0,
-        top: 0,
-    },
     horizontal: {
         flexDirection: 'row',
         justifyContent: 'center',
     },
-    sale: {
-        backgroundColor: 'rgb(246,132,106)',
-        color: '#fff',
-        borderTopRightRadius: 3,
-        borderBottomRightRadius: 3,
-        padding: 10,
-        fontFamily: 'roboto',
-        minWidth: 50,
-        textAlign: 'center',
-    },
     title: {
-        margin: 20,
-        fontSize: 16,
+        margin: 8,
+        fontSize: 14,
         fontFamily: 'roboto',
         textAlign: 'justify',
+        color: '#000',
+        opacity: 0.87
     },
     container: {
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 4,
+        marginBottom: 4,
         backgroundColor: '#fff',
         position: 'relative',
-        paddingBottom: 20,
-        borderRadius: 5,
+        paddingBottom: 6,
+        borderBottomWidth: 1,
+        borderRightWidth: 0.5,
+        borderLeftWidth: 0.5,
+        borderTopWidth: 0.5,
+        borderColor: 'rgba(0,0,0,0.4)',
     },
-    italic: {
-        fontFamily: 'roboto-italic',
-        fontSize: 12,
-        color: '#777777',
-        textAlign: 'center',
+    imgRow: {
+        width: 25,
+        height: 25,
     },
+    textRow: {
+        color: '#000',
+        opacity: 0.54,
+        paddingTop: 2,
+        paddingLeft: 4,
+        paddingRight: 6,
+    },
+    rowContainer: {
+        paddingTop: 12
+    }
 })

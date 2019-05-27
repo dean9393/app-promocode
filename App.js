@@ -4,16 +4,17 @@ import {
   StatusBar, 
   StyleSheet, 
   View, 
-  AsyncStorage 
+  AsyncStorage
 } from 'react-native';
 import { 
   AppLoading, 
   Font, 
   Icon 
 } from 'expo';
-import AppNavigator from './navigation/AppNavigator';
 import { Provider } from 'react-redux';
 import { store } from './redux/app-redux';
+
+import SideNavigator from './navigation/SideNavigator';
 
 export default class App extends React.Component {
   state = {
@@ -36,8 +37,8 @@ export default class App extends React.Component {
       return (
         <Provider store={store}>
           <View style={styles.container}>
+            <SideNavigator />
             {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            <AppNavigator />
           </View>
         </Provider>
       );
@@ -51,19 +52,47 @@ export default class App extends React.Component {
         ...Icon.Ionicons.font,
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
-        'roboto': require('./assets/fonts/Roboto-Medium.ttf'),
-        'roboto-italic': require('./assets/fonts/Roboto-MediumItalic.ttf'),
+        'roboto': require('./assets/fonts/roboto-regular.ttf'),
+        'roboto-bold': require('./assets/fonts/roboto-bold.ttf'),
+        'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
       }),
-      /*fetch('http://promocodehealth.ru/public/api/categories/')
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          categories: responseJson.data,
-        })
+      /*axios.post('https://promocodehealth.ru/public/api/categories/')
+      .then(response => {
+        store.dispatch({
+          type: 'setCategory',
+          value: response.data.data.cat
+        });
+        store.dispatch({
+          type: 'setSubcategory',
+          value: response.data.data.subcat
+        });
+        store.dispatch({
+          type: 'setUser',
+          value: response.data.data.user
+        });
       })
-      .catch((error) =>{
-        console.error('category: '+error);
+      .catch(error => {
+        console.log('Start: ' + error);
       }),*/
+      //=======================================================
+      d = require('./json/category.json'),
+      store.dispatch({
+        type: 'setCategory',
+        value: d.data.cat
+      }),
+      store.dispatch({
+        type: 'setSubcategory',
+        value: d.data.subcat
+      }),
+      store.dispatch({
+        type: 'setUser',
+        value: d.data.user
+      }),
+      store.dispatch({
+        type: 'setNotifications',
+        value: true
+      }),
+      //=======================================================
       this._check(),
     ]);
   };
@@ -75,6 +104,22 @@ export default class App extends React.Component {
         AsyncStorage.setItem('city_id', "1");
         AsyncStorage.setItem('city', 'Краснодар');
       }
+      store.dispatch({
+        type: 'setCityId',
+        value: await AsyncStorage.getItem('city_id')
+      });
+      store.dispatch({
+        type: 'setCityTitle',
+        value: await AsyncStorage.getItem('city')
+      });
+      value = await AsyncStorage.getItem('notifications');
+      if(value == null){
+        AsyncStorage.setItem('notifications', "true");
+      }
+      store.dispatch({
+        type: 'setNotifications',
+        value: (await AsyncStorage.getItem('notifications') == 'true')? true : false
+      })
     } catch(error){
       console.log('check: '+error);
     }
@@ -94,19 +139,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E9E9E9',
+    backgroundColor: '#DAE5EA',
   },
 });
-
-const mapStateToProps = state => {
-  return {
-    user: state.user
-  }
-}
-const mapDispatchToProps = dispatch => {
-  return {
-    add: (name) => {
-      dispatch(addPlace(name))
-    }
-  }
-}

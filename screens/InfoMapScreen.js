@@ -6,8 +6,11 @@ import {
     Dimensions,
     ActivityIndicator
 } from 'react-native';
+import { Button } from 'react-native-elements';
+import Colors from '../constants/Colors';
+import { connect } from 'react-redux';
 
-export default class InfoMapScreen extends React.Component
+class InfoMapScreen extends React.Component
 {
     constructor(props)
     {
@@ -15,7 +18,6 @@ export default class InfoMapScreen extends React.Component
     }
 
     ActivityIndicatorLoadingView() {
-    
         return (
             <ActivityIndicator
                 color='#1E88E5'
@@ -27,20 +29,50 @@ export default class InfoMapScreen extends React.Component
 
     render()
     {
-        const info = this.props.navigation.state.params;
         return(
             <View style={styles.container}>
                 <WebView 
-                    source={{uri:'http://promocodehealth.ru/public/onemap/'+info.coord+'/'+info.title+'/10'}} 
+                    source={{uri:'https://promocodehealth.ru/public/onemap/'+this.props.navigation.state.params.id}} 
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
                     renderLoading={this.ActivityIndicatorLoadingView} 
                     startInLoadingState={true}  
                     style={styles.map} />
+                <Button
+					large
+					title={(this.props.navigation.state.params.isBuy) ? 'ПОЛУЧИТЬ ПРОМОКОД' : 'У вас уже есть этот промокод'}
+					color='#fff'
+					onPress={ this.pressButton }
+					buttonStyle={ styles.button } 
+					disabled={ this.props.navigation.state.params.disButton }
+				/>
             </View>
         )
     }
+
+    pressButton = () => {
+        this.props.onAddBack('Promo');
+		this.props.onAddId(this.props.navigation.state.params.id);
+		this.props.onAddTitle(this.props.navigation.state.params.title);
+        this.props.navigation.navigate('Login')
+	}
 }
+export default connect(
+	state => ({
+		store: state
+	}),
+	dispatch => ({
+		onAddBack: (back) => {
+			dispatch({type: 'setBack', value: back})
+		},
+		onAddId: (id) => {
+			dispatch({type: 'setId', value: id})
+		},
+		onAddTitle: (title) => {
+			dispatch({type: 'setTitle', value: title})
+		}
+	})
+)(InfoMapScreen)
 
 const styles = StyleSheet.create({
     map: {
@@ -57,5 +89,14 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center' 
-    }
+    },
+    button: {
+        backgroundColor: Colors.bottomButton,
+        marginTop: 20,
+		marginBottom: 20,
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+        right: 0,
+    },
 })

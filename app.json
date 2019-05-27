@@ -21,7 +21,22 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "ru.promocodehealth.promocodes",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "YOUR_REASON_FOR_USING_USER_PHOTOS_HERE",
+        "NSCameraUsageDescription": "YOUR_REASON_FOR_USING_USER_CAMERA_HERE",
+        "NSPhotoLibraryAddUsageDescription": "would like to save photos to your photo gallery",
+        "NSMicrophoneUsageDescription": "would like to your microphone (for videos)"
+      }
+    },
+    "android": {
+      "package": "ru.promocodehealth.promocodes",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     }
   }
 }

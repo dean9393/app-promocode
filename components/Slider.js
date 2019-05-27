@@ -15,14 +15,16 @@ export default class Slider extends React.Component
             <ImageSlider
                 autoPlayWithInterval={ 5000 }
                 images={ this.props.images }
+                isScroll={ this.props.isScroll }
                 style= {{
                     borderTopLeftRadius: this.props.r, 
-                    borderTopRightRadius: this.props.r
+                    borderTopRightRadius: this.props.r,
+                    width: this.props.w
                 }}
                 customSlide={({ index, item, style, width }) => (
                     <View key={index} style={[style, styles.customSlide]}>
                         <Image source={{ uri: item }} style={{ 
-                            width: this.props.w, 
+                            width: width, 
                             height: this.props.h, 
                             borderTopLeftRadius: this.props.r, 
                             borderTopRightRadius: this.props.r }} />
@@ -53,8 +55,9 @@ export default class Slider extends React.Component
 const styles = StyleSheet.create({
     customSlide: { 
         position: 'relative',
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,backgroundColor: 'transparent',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: 'transparent',
     },
     buttons: {
         position: 'absolute',
